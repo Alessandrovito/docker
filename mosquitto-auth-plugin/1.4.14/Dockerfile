@@ -9,6 +9,9 @@ RUN \
                 curl libcurl4-openssl-dev  libc-ares2 libcurl3 \
         && cd /tmp \
         && wget http://mosquitto.org/files/source/mosquitto-$MOSQUITTO_VERSION.tar.gz -O mosquitto.tar.gz \
+        && wget http://mosquitto.org/files/source/mosquitto-$MOSQUITTO_VERSION.tar.gz.asc -O mosquitto.tar.gz.asc \
+        && gpg --keyserver pgp.mit.edu --recv B3E717B7 \
+        && gpg --verify mosquitto.tar.gz.asc \
         && mkdir mosquitto-src && tar xfz mosquitto.tar.gz --strip-components=1 -C mosquitto-src \
         && cd mosquitto-src \
         && make WITH_SRV=yes WITH_MEMORY_TRACKING=no \
@@ -33,21 +36,19 @@ RUN mkdir -p /aws && \
     apt-get -y install python-pip && \
     pip install awscli && \
     apt-get remove -y --purge python-pip && \
-	apt-get -y autoclean && \
+        apt-get -y autoclean && \
     rm -rf /var/cache/apt/*
-	
 
-
-ADD mosquitto.conf /etc/mosquitto/mosquitto.conf
-ADD configure.sh /configure.sh
-ADD run.sh /run.sh
-RUN apt-get -y install dos2unix
-RUN dos2unix /configure.sh /run.sh  /etc/mosquitto/mosquitto.conf && \
-    chmod +x /configure.sh /run.sh
 
 
 VOLUME ["/var/lib/mosquitto"]
 
 EXPOSE 1883 8883
 
-CMD /configure.sh && /run.sh mosquittoverbose
+
+ADD mosquitto.conf /etc/mosquitto/mosquitto.conf
+ADD run.sh /run.sh
+RUN chmod +x /run.sh
+
+ENTRYPOINT ["/run.sh"]
+CMD ["mosquitto"]
