@@ -30,16 +30,9 @@ RUN \
         && useradd -r mosquitto \
         && apt-get purge -y build-essential git wget ca-certificates \
         && apt-get autoremove -y \
+        && apt-get -y autoclean \
+        && rm -rf /var/cache/apt/* \
         && rm -rf  /tmp/*
-
-RUN mkdir -p /aws && \
-    apt-get -y install python-pip && \
-    pip install awscli && \
-    apt-get remove -y --purge python-pip && \
-        apt-get -y autoclean && \
-    rm -rf /var/cache/apt/*
-
-
 
 VOLUME ["/var/lib/mosquitto"]
 
