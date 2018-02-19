@@ -4,13 +4,13 @@ set -x
 echo "Start rabbit node. Waiting network is up ..."
 sleep 5
 
-IFS='@'
-tokens=($RABBITMQ_NODENAME)
 
-echo ${tokens[*]}
+RABBIT_HOST=`echo $RABBITMQ_NODENAME | cut -d'@' -f 2`
 
-RABBIT_HOST=${tokens[1]}
-
+if [ -z "$RABBIT_HOST" ]; then
+    echo "Wrong $RABBITMQ_NODENAME"
+    exit 1
+fi
 
 n=1
 while [[ $(drill $RABBIT_HOST | grep $RABBIT_HOST | tail -n +2 | awk '{print $5}' | grep '^10.0' | wc -c) -eq 0 ]] && [[ $n -le 10 ]]
