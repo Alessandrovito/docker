@@ -37,4 +37,4 @@ else
     sleep 15 && rabbitmqctl stop_app && rabbitmqctl reset && rabbitmqctl join_cluster ${CLUSTER_WITH} && rabbitmqctl start_app &
 fi
 
-/docker-entrypoint.sh rabbitmq-serverdocker-entrypoint.sh rabbitmq-server
+/docker-entrypoint.sh rabbitmq-server
