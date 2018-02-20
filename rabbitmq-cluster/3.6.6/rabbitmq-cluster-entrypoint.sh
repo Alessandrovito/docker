@@ -33,24 +33,25 @@ echo "Rabbit IP $IP_RESOLV for Rabbit nodename $RABBITMQ_NODENAME"
 
 setup_cluster() {
 	
-	rabbitmqctl wait /var/lib/rabbitmq/mnesia/$RABBITMQ_NODENAME.pid
-	
+
 	if [ -z "$CLUSTER_WITH" ]; then
 		echo "Setup single node ${RABBITMQ_NODENAME} in High Availability"
-		rabbitmqctl wait /var/lib/rabbitmq/mnesia/$RABBITMQ_NODENAME.pid && sleep 10 &&
+		rabbitmqctl wait /var/lib/rabbitmq/mnesia/$RABBITMQ_NODENAME.pid && sleep 10 && \
 		rabbitmqctl set_policy ha-all '^(?!amq\.).*' '{"ha-mode": "all", "ha-sync-mode": "automatic"}' &
 		
 	else
 		echo "Setup Cluster with $CLUSTER_WITH for node ${RABBITMQ_NODENAME}"
-		rabbitmqctl wait /var/lib/rabbitmq/mnesia/$RABBITMQ_NODENAME.pid && sleep 10 &&
-		rabbitmqctl stop_app &&
-		rabbitmqctl join_cluster ${CLUSTER_WITH} &&
+		rabbitmqctl wait /var/lib/rabbitmq/mnesia/$RABBITMQ_NODENAME.pid && sleep 10 && \
+		rabbitmqctl stop_app && \
+		rabbitmqctl join_cluster ${CLUSTER_WITH} && \
 		rabbitmqctl start_app &
 	fi
 }
 
-# run rabbitmq-server as a foreground process.
-/docker-entrypoint.sh rabbitmq-server &
-
 setup_cluster
+
+# run rabbitmq-server
+/docker-entrypoint.sh rabbitmq-server
+
+
 
