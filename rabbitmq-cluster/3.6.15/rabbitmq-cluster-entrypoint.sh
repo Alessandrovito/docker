@@ -38,15 +38,15 @@ wait_network() {
 setup_cluster() {
 
     if [ -z "$CLUSTER_WITH" ]; then
-        echo "Setup single node ${RABBITMQ_NODENAME} in High Availability"
+    echo "Setup single node ${RABBITMQ_NODENAME} in High Availability at the first starting"
         # Check when pid of rabbitmq-server is created; first node only sets HA policy
         rabbitmqctl wait /var/lib/rabbitmq/mnesia/$RABBITMQ_NODENAME.pid && sleep 20 && \
         rabbitmqctl set_policy ha-all '^(?!amq\.|springCloudBus\.).*' '{"ha-mode": "all", "ha-sync-mode": "automatic"}' &
     else
         echo "Setup Cluster with $CLUSTER_WITH for node ${RABBITMQ_NODENAME}"
-        # Check when pid of rabbitmq-server is created; this node must to cluster with others node; check if this node is already joined in the cluster, if not stop only app , join cluster and start app.
+        # Check when pid of rabbitmq-server is created; this node must to cluster with others node; if this node ($RABBITMQ_NODENAME) is alone, stop app, joins in the cluster with ($CLUSTER_WITH) and start app.
         rabbitmqctl wait /var/lib/rabbitmq/mnesia/$RABBITMQ_NODENAME.pid && sleep 20 && \
-        [ $(rabbitmqctl cluster_status |  grep -oE '\{disc,\[(.*)\]' | grep $RABBITMQ_NODENAME |cut -d"[" -f2 | cut -d"]" -f1 | cut -d"," -f1- --output-delimiter=' ' | wc -w) -gt 1 ] && \
+        [ $(rabbitmqctl cluster_status |  grep -oE '\{disc,\[(.*)\]' | grep $RABBITMQ_NODENAME |cut -d"[" -f2 | cut -d"]" -f1 | cut -d"," -f1- --output-delimiter=' ' | wc -w) -eq 1 ] && \
         rabbitmqctl stop_app && \
         rabbitmqctl join_cluster ${CLUSTER_WITH} && \
         rabbitmqctl start_app &
