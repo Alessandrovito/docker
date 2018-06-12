@@ -1,6 +1,9 @@
 FROM anapsix/alpine-java 
 
-ADD mosquitto-exporter-semioty-1.0.jar /app.jar
+ADD mosquitto-exporter-1.0.jar /app.jar
+ADD run.sh /run.sh
 
-CMD ["java","-jar","/app.jar"]
+EXPOSE 9180
+
+CMD [ "/run.sh"]
 
